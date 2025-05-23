@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, AlertCircle, Clock, CheckCircle2, Calendar } from 'lucide-react';
+import { Bell, AlertCircle, Clock, CheckCircle2, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useNewsUpdates } from '../../hooks/useSupabase';
 
@@ -12,6 +12,7 @@ interface NewsUpdatesProps {
 
 export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
   const { news, loading, error } = useNewsUpdates();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const getStatusIcon = (category: string) => {
     switch (category) {
@@ -22,6 +23,10 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
       default:
         return <CheckCircle2 size={16} className="text-green-500" />;
     }
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
   };
 
   if (loading) {
@@ -61,7 +66,7 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
   return (
     <div className="bg-white rounded-lg border p-4 h-full" style={{ borderColor: "#cec4c1" }}>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-medium text-[#8b8585]">Recent Updates</h2>
+        <h2 className="text-xl font-medium text-[#8b8585]">Updates & Reminders</h2>
         <Bell className="text-[#8b8585]" size={20} />
       </div>
 
@@ -69,29 +74,39 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
         {news.map((item) => (
           <div
             key={item.id}
-            className="p-4 rounded-lg border hover:shadow-sm transition-all"
+            className="rounded-lg border hover:shadow-sm transition-all cursor-pointer"
             style={{ borderColor: "#cec4c1" }}
+            onClick={() => toggleExpand(item.id)}
           >
-            <div className="flex items-start gap-3">
-              <div className="mt-1">{getStatusIcon(item.category)}</div>
-              <div className="flex-1">
-                <h3 className="font-medium text-[#8b8585] mb-1">{item.title}</h3>
-                <p className="text-sm text-[#737373] mb-2">{item.content}</p>
-                <div className="flex items-center gap-2 text-xs">
+            <div className="p-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {getStatusIcon(item.category)}
+                <h3 className="font-medium text-[#8b8585]">{item.title}</h3>
+              </div>
+              <div className="flex items-center gap-2">
                   <span className={`px-2 py-1 rounded-full ${
                     item.category === 'alert' ? 'bg-red-100 text-red-700' :
                     item.category === 'update' ? 'bg-blue-100 text-blue-700' :
                     'bg-green-100 text-green-700'
-                  }`}>
+                  } text-xs`}>
                     {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
                   </span>
-                  <span className="flex items-center gap-1 text-[#737373]">
-                    <Calendar size={12} />
-                    {format(parseISO(item.published_at), 'MMM d, yyyy')}
-                  </span>
-                </div>
+                {expandedId === item.id ? (
+                  <ChevronUp size={16} className="text-[#737373]" />
+                ) : (
+                  <ChevronDown size={16} className="text-[#737373]" />
+                )}
               </div>
             </div>
+            {expandedId === item.id && (
+              <div className="px-3 pb-3 border-t" style={{ borderColor: "#cec4c1" }}>
+                <p className="text-sm text-[#737373] mt-2 mb-2">{item.content}</p>
+                <div className="flex items-center gap-2 text-xs text-[#737373]">
+                  <Calendar size={12} />
+                  {format(parseISO(item.published_at), 'MMM d, yyyy')}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
