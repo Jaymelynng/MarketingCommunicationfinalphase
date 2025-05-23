@@ -12,12 +12,17 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   },
   global: {
     headers: {
-      'X-Client-Info': 'supabase-js/2.39.7',
-    },
+      'X-Client-Info': 'supabase-js/2.39.7'
+    }
   },
+  db: {
+    schema: 'public'
+  }
 })
 
 export const getSupabase = () => supabase
