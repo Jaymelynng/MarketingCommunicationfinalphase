@@ -19,9 +19,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     headers: {
       'X-Client-Info': 'supabase-js/2.39.7'
     }
-  },
-  db: {
-    schema: 'public'
   }
 })
 
