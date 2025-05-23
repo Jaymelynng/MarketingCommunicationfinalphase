@@ -11,6 +11,22 @@ export function TaskList() {
   const { isAdmin, user } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-[#737373]">Loading tasks...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 text-red-500 p-4 rounded-lg">
+        Error loading tasks: {error.message}
+      </div>
+    );
+  }
+
   // Filter tasks for gym managers
   const filteredTasks = user?.role === 'manager'
     ? tasks.filter(task => 
