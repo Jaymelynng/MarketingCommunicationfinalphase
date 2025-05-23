@@ -172,8 +172,7 @@ export const useTasks = (options?: {
     const fetchTasks = async () => {
       try {
         const supabase = getSupabase();
-        let query = supabase
-          .from('tasks')
+        let query = supabase.from('tasks')
           .select('*')
           .order('due_date', { ascending: true });
 
@@ -195,10 +194,10 @@ export const useTasks = (options?: {
           query = query.lte('due_date', futureDate.toISOString());
         }
 
-        const { data, error } = await query;
+        const { data, error: fetchError } = await query;
 
-        if (error) throw error;
-        setTasks(data);
+        if (fetchError) throw fetchError;
+        setTasks(data || []);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch tasks'));
       } finally {
@@ -207,7 +206,7 @@ export const useTasks = (options?: {
     };
 
     fetchTasks();
-  }, [options?.gymId, options?.marketingItemId]);
+  }, [options?.gymId, options?.marketingItemId, options?.status, options?.dueWithin]);
 
   return { tasks, loading, error };
 };

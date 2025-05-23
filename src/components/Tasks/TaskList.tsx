@@ -1,23 +1,38 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Trash2, Calendar, Clock } from 'lucide-react';
-import { useTaskStore } from '../../store/taskStore';
+import { useTasks } from '../../hooks/useSupabase';
 import { useAuth } from '../../context/AuthContext';
 import { AddTaskModal } from './AddTaskModal';
+import { TASK_CHANNEL_LABELS } from '../../utils/constants';
 
 export function TaskList() {
-  const { tasks, deleteTask } = useTaskStore();
+  const { tasks, loading, error } = useTasks();
   const { isAdmin, user } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Filter tasks for gym managers
   const filteredTasks = user?.role === 'manager'
     ? tasks.filter(task => 
-        task.checklistItems.some(item => 
-          item.gyms.some(gym => gym.gymName === user.gymId)
-        )
+        task.gym_id === user.gymId
       )
     : tasks;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-[#737373]">Loading tasks...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-red-500">Error loading tasks: {error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -53,25 +68,25 @@ export function TaskList() {
                   <div className="flex gap-4">
                     <p className="text-sm text-[#737373] flex items-center gap-1">
                       <Clock size={14} className="text-yellow-500" />
-                      Due: {new Date(task.dueDate).toLocaleDateString()}
+                      Due: {new Date(task.due_date).toLocaleDateString()}
                     </p>
-                    {task.goLiveDate && (
+                    {task.go_live_date && (
                       <p className="text-sm text-[#737373] flex items-center gap-1">
                         <Calendar size={14} className="text-green-500" />
-                        Goes Live: {new Date(task.goLiveDate).toLocaleDateString()}
+                        Goes Live: {new Date(task.go_live_date).toLocaleDateString()}
                       </p>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-100 text-[#737373]">
-                    {TASK_CHANNEL_LABELS[task.channel]}
+                    {task.task_type}
                   </span>
                   {isAdmin() && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();
-                        deleteTask(task.id);
+                        // TODO: Implement delete task functionality
                       }}
                       className="text-red-500 hover:bg-red-50 p-2 rounded-lg"
                       title="Delete task"
