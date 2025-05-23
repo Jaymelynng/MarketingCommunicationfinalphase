@@ -1,7 +1,8 @@
-import React from 'react';
-import { Bell, AlertCircle, Clock, CheckCircle2, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertCircle, Info, Clock, CheckCircle, Calendar, ChevronDown, ChevronUp, ChevronRight, Bell } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { useNewsUpdates } from '../../hooks/useSupabase';
+import { useNewsUpdates, useTasks } from '../../hooks/useSupabase';
+import { Link } from 'react-router-dom';
 
 interface NewsUpdatesProps {
   dateRange: {
@@ -65,50 +66,69 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
 
   return (
     <div className="bg-white rounded-lg border p-4 h-full" style={{ borderColor: "#cec4c1" }}>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-medium text-[#8b8585]">Updates & Reminders</h2>
-        <Bell className="text-[#8b8585]" size={20} />
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-medium text-[#8b8585] flex items-center gap-2">
+          <Bell size={20} />
+          Updates & Reminders
+        </h2>
+        <div className="flex items-center gap-2 text-sm text-[#737373]">
+          <span className="px-2 py-1 rounded-full bg-red-100 text-red-600">
+            {overdueTasks.length} Overdue
+          </span>
+          <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-600">
+            {upcomingTasks.length} Due Soon
+          </span>
+        </div>
       </div>
 
       <div className="space-y-3">
-        {news.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-lg border hover:shadow-sm transition-all cursor-pointer"
-            style={{ borderColor: "#cec4c1" }}
-            onClick={() => toggleExpand(item.id)}
-          >
-            <div className="p-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {getStatusIcon(item.category)}
-                <h3 className="font-medium text-[#8b8585]">{item.title}</h3>
-              </div>
-              <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 rounded-full ${
-                    item.category === 'alert' ? 'bg-red-100 text-red-700' :
-                    item.category === 'update' ? 'bg-blue-100 text-blue-700' :
-                    'bg-green-100 text-green-700'
-                  } text-xs`}>
-                    {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
-                  </span>
-                {expandedId === item.id ? (
-                  <ChevronUp size={16} className="text-[#737373]" />
-                ) : (
-                  <ChevronDown size={16} className="text-[#737373]" />
-                )}
+      {timelineItems.map((item) => (
+        <div
+          key={item.id}
+          className={`rounded-lg border transform-gpu transition-all duration-200 overflow-hidden ${
+            item.priority > 1 ? 'bg-rose-50/50' : 'bg-white'
+          } hover:shadow-sm will-change-transform cursor-pointer`}
+          style={{ borderColor: "#cec4c1" }}
+          onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
+        >
+          <div className="flex items-start gap-3 p-4">
+            <div className="mt-1 flex-shrink-0">{getStatusIcon(item.type)}</div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-[#8b8585] mb-1">{item.title}</h3>
+              {!expandedItem === item.id && (
+                <p className="text-sm text-[#8f93a0] mb-2 line-clamp-2">{item.content}</p>
+              )}
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <span className={`px-2 py-1 rounded-full ${
+                  item.type === 'update' ? 'bg-blue-100 text-blue-700' :
+                  item.type === 'alert' ? 'bg-red-100 text-red-700' :
+                  'bg-green-100 text-green-700'
+                }`}>
+                  {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                </span>
+                <span className="text-[#737373] flex items-center gap-1">
+                  <Calendar size={12} />
+                  {format(parseISO(item.date), 'MMM d, yyyy')}
+                </span>
               </div>
             </div>
-            {expandedId === item.id && (
-              <div className="px-3 pb-3 border-t" style={{ borderColor: "#cec4c1" }}>
-                <p className="text-sm text-[#737373] mt-2 mb-2">{item.content}</p>
-                <div className="flex items-center gap-2 text-xs text-[#737373]">
-                  <Calendar size={12} />
-                  {format(parseISO(item.published_at), 'MMM d, yyyy')}
-                </div>
-              </div>
-            )}
           </div>
-        ))}
+          {expandedItem === item.id && (
+            <div className="px-4 pb-4 pt-2 border-t bg-gray-50" style={{ borderColor: "#cec4c1" }}>
+              <p className="text-sm text-[#8f93a0] whitespace-pre-line">{item.content}</p>
+              {item.itemType === 'task' && (
+                <Link
+                  to={`/tasks/${item.id}`}
+                  className="mt-4 text-sm text-[#b48f8f] hover:underline inline-flex items-center gap-1 font-medium"
+                >
+                  View Task Details
+                  <ChevronRight size={14} />
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
       </div>
     </div>
   );
