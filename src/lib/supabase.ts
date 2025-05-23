@@ -13,6 +13,11 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
   },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-js/2.39.7',
+    },
+  },
 })
 
 export const getSupabase = () => supabase
