@@ -164,7 +164,7 @@ export const useTasks = (options?: {
   status?: string;
   dueWithin?: number; // days
 }) => {
-  const [tasks, setTasks] = useState<Database['public']['Tables']['tasks']['Row'][]>([]);
+  const [tasks, setTasks] = useState<Database['public']['Tables']['marketing_tasks']['Row'][]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -172,16 +172,12 @@ export const useTasks = (options?: {
     const fetchTasks = async () => {
       try {
         const supabase = getSupabase();
-        let query = supabase.from('tasks')
+        let query = supabase.from('marketing_tasks')
           .select('*')
           .order('due_date', { ascending: true });
 
-        if (options?.gymId) {
-          query = query.eq('gym_id', options.gymId);
-        }
-
         if (options?.marketingItemId) {
-          query = query.eq('marketing_item_id', options.marketingItemId);
+          query = query.eq('content_id', options.marketingItemId);
         }
         
         if (options?.status) {
