@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { LayoutDashboard, CheckSquare, Mail, Image, Settings, Printer, Inbox, Grid, PenTool as Tool, Instagram, Facebook, Database, Palette, Calculator, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useGymDetails } from '../../hooks/useSupabase';
 
 const navItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -14,6 +15,15 @@ const navItems = [
 
 export function MainLayout() {
   const { isAdmin } = useAuth();
+  const { gyms, loading } = useGymDetails();
+  const [selectedGym, setSelectedGym] = useState('');
+  const [currentGym, setCurrentGym] = useState<any>(null);
+
+  useEffect(() => {
+    if (selectedGym && gyms) {
+      setCurrentGym(gyms.find(gym => gym.gym_name === selectedGym));
+    }
+  }, [selectedGym, gyms]);
 
   return (
     <div className="flex h-screen bg-[#f9fafb]">
@@ -44,25 +54,48 @@ export function MainLayout() {
               <Tool size={20} />
               <h2 className="text-lg font-medium">Toolkit</h2>
             </div>
-            <select className="w-full px-4 py-2 rounded-lg border mb-6 bg-white/90 hover:bg-white transition-colors" style={{ borderColor: "#cec4c1" }}>
-              <option>Select a gym</option>
+            <select 
+              value={selectedGym}
+              onChange={(e) => setSelectedGym(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border mb-6 bg-white/90 hover:bg-white transition-colors" 
+              style={{ borderColor: "#cec4c1" }}
+            >
+              <option value="">Select a gym</option>
+              {gyms?.map(gym => (
+                <option key={gym.id} value={gym.gym_name}>{gym.gym_name}</option>
+              ))}
             </select>
             <div className="grid grid-cols-2 gap-4">
-              <a href="#" className="bg-white/90 hover:bg-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 hover:shadow-md transition-all">
+              <a 
+                href={currentGym?.instagram_url || '#'} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`bg-white/90 hover:bg-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 hover:shadow-md transition-all ${!currentGym?.instagram_url ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
                 <div className="w-12 h-12 flex items-center justify-center">
                   <div className="sparkle"></div>
                   <Instagram size={24} className="text-[#8b8585]" />
                 </div>
                 <span className="text-sm text-[#8b8585]">Instagram</span>
               </a>
-              <a href="#" className="bg-white/90 hover:bg-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 hover:shadow-md transition-all">
+              <a 
+                href={currentGym?.facebook_url || '#'} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`bg-white/90 hover:bg-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 hover:shadow-md transition-all ${!currentGym?.facebook_url ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
                 <div className="w-12 h-12 flex items-center justify-center">
                   <div className="sparkle"></div>
                   <Facebook size={24} className="text-[#8b8585]" />
                 </div>
                 <span className="text-sm text-[#8b8585]">Facebook</span>
               </a>
-              <a href="#" className="bg-white/90 hover:bg-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 hover:shadow-md transition-all">
+              <a 
+                href={currentGym?.sharepoint_url || '#'} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`bg-white/90 hover:bg-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 hover:shadow-md transition-all ${!currentGym?.sharepoint_url ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
                 <div className="w-12 h-12 flex items-center justify-center">
                   <div className="sparkle"></div>
                   <Database size={24} className="text-[#8b8585]" />
@@ -93,6 +126,11 @@ export function MainLayout() {
                 <span className="text-xs text-[#8f93a0]">COMING SOON</span>
               </div>
             </div>
+            {loading && (
+              <div className="text-center mt-4 text-white/80">
+                Loading gym details...
+              </div>
+            )}
             {isAdmin() && (
               <NavLink
                 to="/admin"
