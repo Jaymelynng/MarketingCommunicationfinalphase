@@ -23,8 +23,17 @@ export interface CalendarDayType {
 }
 
 export interface DayDetails {
-  tasks: TaskItem[];
-  content: ContentItem[];
+  tasks: {
+    email: number;
+    social: number;
+    inGym: number;
+    misc: number;
+  };
+  emails: Array<{
+    id: number;
+    title: string;
+    scheduledDate: string;
+  }>;
 }
 
 export interface TaskItem {

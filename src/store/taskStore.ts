@@ -1,17 +1,21 @@
 import { create } from 'zustand';
-import { Task } from '../types/tasks';
-import { tasks as initialTasks } from '../data/tasks';
+import { Task, TaskChannel } from '../types/tasks';
 
 interface TaskStore {
   tasks: Task[];
   addTask: (task: Omit<Task, 'id'>) => void;
   deleteTask: (taskId: number) => void;
   updateTaskStatus: (taskId: number, gymName: string, completed: boolean) => void;
-  toggleChecklistItem: (taskId: number, itemIndex: number) => void;
+  getTasksByDate: (date: string) => {
+    email: number;
+    social: number;
+    inGym: number;
+    misc: number;
+  };
 }
 
 export const useTaskStore = create<TaskStore>((set) => ({
-  tasks: initialTasks,
+  tasks: [],
   
   addTask: (newTask) => set((state) => ({
     tasks: [...state.tasks, { ...newTask, id: Math.max(...state.tasks.map(t => t.id)) + 1 }]
@@ -45,29 +49,13 @@ export const useTaskStore = create<TaskStore>((set) => ({
       }),
     })),
 
-  toggleChecklistItem: (taskId, itemIndex) =>
-    set((state) => ({
-      tasks: state.tasks.map((task) => {
-        if (task.id === taskId) {
-          const [description, checklist] = task.description.split('\n\nChecklist:\n');
-          if (!checklist) return task;
-
-          const items = checklist.split('\n');
-          const item = items[itemIndex];
-          if (!item) return task;
-
-          const isChecked = item.includes('- [x] ');
-          items[itemIndex] = item.replace(
-            isChecked ? '- [x] ' : '- [ ] ',
-            isChecked ? '- [ ] ' : '- [x] '
-          );
-
-          return {
-            ...task,
-            description: `${description}\n\nChecklist:\n${items.join('\n')}`
-          };
-        }
-        return task;
-      }),
-    })),
+  getTasksByDate: (date: string) => {
+    const { tasks } = get();
+    return {
+      email: tasks.filter(t => t.channel === 'email-marketing' && t.dueDate === date).length,
+      social: tasks.filter(t => t.channel === 'social-media' && t.dueDate === date).length,
+      inGym: tasks.filter(t => t.channel === 'in-gym-marketing' && t.dueDate === date).length,
+      misc: tasks.filter(t => t.channel === 'misc' && t.dueDate === date).length
+    };
+  }
 }));

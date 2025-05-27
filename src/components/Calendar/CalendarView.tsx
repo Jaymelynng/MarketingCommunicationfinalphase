@@ -3,31 +3,32 @@ import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSa
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { DayDetailsPanel } from './DayDetailsPanel';
+import { CalendarDayType } from '../../types/calendar';
 import { useTaskStore } from '../../store/taskStore';
 import { useEmailStore } from '../../store/emailStore';
 
 export function CalendarView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const { tasks } = useTaskStore();
+  const { getTasksByDate } = useTaskStore();
   const { emails } = useEmailStore();
 
   const handlePreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
-  const generateCalendarDays = () => {
+  const generateCalendarDays = (): CalendarDayType[] => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
     return days.map(date => {
       const dateStr = date.toISOString().split('T')[0];
+      const taskCounts = getTasksByDate(dateStr);
       
-      // Count tasks and emails for this date
       const dayTasks = {
         email: emails.filter(e => e.scheduledDate.startsWith(dateStr)).length,
-        social: tasks.filter(t => t.channel === 'social-media' && t.dueDate.startsWith(dateStr)).length,
-        inGym: tasks.filter(t => t.channel === 'in-gym-marketing' && t.dueDate.startsWith(dateStr)).length,
+        social: taskCounts.social,
+        inGym: taskCounts.inGym
       };
 
       return {
@@ -35,30 +36,22 @@ export function CalendarView() {
         tasks: dayTasks,
         isToday: isSameDay(date, new Date())
       };
-    });
+    }).filter(Boolean);
   };
 
   const getDayDetails = (date: Date): DayDetails => {
     const dateStr = date.toISOString().split('T')[0];
-    const dayEvents = events.filter(event => event.date.startsWith(dateStr));
+    const taskCounts = getTasksByDate(dateStr);
+    const dayEmails = emails.filter(e => e.scheduledDate.startsWith(dateStr));
 
     return {
-      tasks: dayEvents
-        .filter(event => event.type === 'task')
-        .map(event => ({
-          id: event.id,
-          title: event.title,
-          checklist: event.description ? [event.description] : [],
-          due: new Date(event.date).toLocaleTimeString()
-        })),
-      content: dayEvents
-        .filter(event => event.type === 'content')
-        .map(event => ({
-          id: event.id,
-          title: event.title,
-          time: new Date(event.date).toLocaleTimeString(),
-          link: event.link || '#'
-        }))
+      tasks: {
+        email: taskCounts.email,
+        social: taskCounts.social,
+        inGym: taskCounts.inGym,
+        misc: taskCounts.misc
+      },
+      emails: dayEmails
     };
   };
 
