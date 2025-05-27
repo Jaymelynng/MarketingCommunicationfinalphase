@@ -1,20 +1,22 @@
 import { create } from 'zustand';
 import { Task, TaskChannel } from '../types/tasks';
 
+interface TaskCounts {
+  email: number;
+  social: number;
+  inGym: number;
+  misc: number;
+}
+
 interface TaskStore {
   tasks: Task[];
   addTask: (task: Omit<Task, 'id'>) => void;
   deleteTask: (taskId: number) => void;
   updateTaskStatus: (taskId: number, gymName: string, completed: boolean) => void;
-  getTasksByDate: (date: string) => {
-    email: number;
-    social: number;
-    inGym: number;
-    misc: number;
-  };
+  getTasksByDate: (date: string) => TaskCounts;
 }
 
-export const useTaskStore = create<TaskStore>((set) => ({
+export const useTaskStore = create<TaskStore>((set, get) => ({
   tasks: [],
   
   addTask: (newTask) => set((state) => ({
@@ -49,8 +51,8 @@ export const useTaskStore = create<TaskStore>((set) => ({
       }),
     })),
 
-  getTasksByDate: (date: string) => {
-    const { tasks } = get();
+  getTasksByDate: (date) => {
+    const tasks = get().tasks;
     return {
       email: tasks.filter(t => t.channel === 'email-marketing' && t.dueDate === date).length,
       social: tasks.filter(t => t.channel === 'social-media' && t.dueDate === date).length,

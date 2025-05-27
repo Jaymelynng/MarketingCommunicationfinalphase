@@ -10,7 +10,7 @@ import { useEmailStore } from '../../store/emailStore';
 export function CalendarView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const { getTasksByDate } = useTaskStore();
+  const taskStore = useTaskStore();
   const { emails } = useEmailStore();
 
   const handlePreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -23,7 +23,7 @@ export function CalendarView() {
 
     return days.map(date => {
       const dateStr = date.toISOString().split('T')[0];
-      const taskCounts = getTasksByDate(dateStr);
+      const taskCounts = taskStore.getTasksByDate(dateStr);
       
       const dayTasks = {
         email: emails.filter(e => e.scheduledDate.startsWith(dateStr)).length,
@@ -41,7 +41,7 @@ export function CalendarView() {
 
   const getDayDetails = (date: Date): DayDetails => {
     const dateStr = date.toISOString().split('T')[0];
-    const taskCounts = getTasksByDate(dateStr);
+    const taskCounts = taskStore.getTasksByDate(dateStr);
     const dayEmails = emails.filter(e => e.scheduledDate.startsWith(dateStr));
 
     return {
