@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
+import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, format } from 'date-fns';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { DayDetailsPanel } from './DayDetailsPanel';
@@ -21,7 +21,7 @@ export function CalendarView() {
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
     return days.map(date => {
-      const dateStr = format(date, 'yyyy-MM-dd');
+      const dateStr = date.toISOString().split('T')[0];
       
       // Count tasks and emails for this date
       const dayTasks = {
