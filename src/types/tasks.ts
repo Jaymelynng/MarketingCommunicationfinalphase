@@ -1,5 +1,12 @@
 export type TaskChannel = 'social-media' | 'email-marketing' | 'in-gym-marketing' | 'misc';
 
+export interface TaskCounts {
+  email: number;
+  social: number;
+  inGym: number;
+  misc: number;
+}
+
 export interface Task {
   id: number;
   title: string;
@@ -20,6 +27,8 @@ export interface Task {
   priority: 'low' | 'medium' | 'high';
   channel: TaskChannel;
   checklistItems: ChecklistItem[];
+  assignedGyms?: string[];
+  contentId?: string;
 }
 
 export interface TaskTemplate {
@@ -35,6 +44,8 @@ export interface ChecklistItem {
   id: number;
   task: string;
   gyms: GymStatus[];
+  dueDate?: string;
+  assignedTo?: string;
 }
 
 export interface GymStatus {
@@ -42,4 +53,5 @@ export interface GymStatus {
   completed: boolean;
   completedAt?: string;
   notes?: string;
+  assignedTo?: string;
 }

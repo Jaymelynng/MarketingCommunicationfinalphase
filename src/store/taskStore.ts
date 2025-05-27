@@ -1,12 +1,6 @@
 import { create } from 'zustand';
-import { Task, TaskChannel } from '../types/tasks';
-
-interface TaskCounts {
-  email: number;
-  social: number;
-  inGym: number;
-  misc: number;
-}
+import { Task, TaskChannel, TaskCounts } from '../types/tasks';
+import { format } from 'date-fns';
 
 interface TaskStore {
   tasks: Task[];
@@ -14,13 +8,19 @@ interface TaskStore {
   deleteTask: (taskId: number) => void;
   updateTaskStatus: (taskId: number, gymName: string, completed: boolean) => void;
   getTasksByDate: (date: string) => TaskCounts;
+  getTasksForDateRange: (startDate: Date, endDate: Date) => Task[];
 }
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
   tasks: [],
   
   addTask: (newTask) => set((state) => ({
-    tasks: [...state.tasks, { ...newTask, id: Math.max(...state.tasks.map(t => t.id)) + 1 }]
+    tasks: [...state.tasks, { 
+      ...newTask, 
+      id: Math.max(...state.tasks.map(t => t.id), 0) + 1,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    }]
   })),
   
   deleteTask: (taskId) => set((state) => ({
@@ -53,11 +53,21 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   getTasksByDate: (date) => {
     const tasks = get().tasks;
+    const formattedDate = format(new Date(date), 'yyyy-MM-dd');
+    
     return {
-      email: tasks.filter(t => t.channel === 'email-marketing' && t.dueDate === date).length,
-      social: tasks.filter(t => t.channel === 'social-media' && t.dueDate === date).length,
-      inGym: tasks.filter(t => t.channel === 'in-gym-marketing' && t.dueDate === date).length,
-      misc: tasks.filter(t => t.channel === 'misc' && t.dueDate === date).length
+      email: tasks.filter(t => t.channel === 'email-marketing' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length,
+      social: tasks.filter(t => t.channel === 'social-media' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length,
+      inGym: tasks.filter(t => t.channel === 'in-gym-marketing' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length,
+      misc: tasks.filter(t => t.channel === 'misc' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length
     };
+  },
+  
+  getTasksForDateRange: (startDate, endDate) => {
+    const tasks = get().tasks;
+    return tasks.filter(task => {
+      const taskDate = new Date(task.dueDate);
+      return taskDate >= startDate && taskDate <= endDate;
+    });
   }
 }));
