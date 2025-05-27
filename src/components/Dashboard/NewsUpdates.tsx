@@ -84,22 +84,18 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
       </div>
 
       <div className="space-y-3">
-      {news.map((item) => (
+      {news.slice(0, 3).map((item) => (
         <div
           key={item.id}
-          className={`rounded-lg border transform-gpu transition-all duration-200 overflow-hidden ${
+          className={`relative rounded-lg border transform-gpu transition-all duration-200 overflow-hidden ${
             item.priority > 1 ? 'bg-rose-50/50' : 'bg-white'
-          } hover:shadow-sm will-change-transform cursor-pointer`}
+          } hover:shadow-md will-change-transform cursor-pointer group`}
           style={{ borderColor: "#cec4c1" }}
-          onClick={() => toggleExpand(item.id)}
         >
-          <div className="flex items-start gap-3 p-4">
+          <div className="flex items-start gap-3 p-3">
             <div className="mt-1 flex-shrink-0">{getStatusIcon(item.type)}</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-[#8b8585] mb-1">{item.title}</h3>
-              {expandedId !== item.id && (
-                <p className="text-sm text-[#8f93a0] mb-2 line-clamp-2">{item.content}</p>
-              )}
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 <span className={`px-2 py-1 rounded-full ${
                   item.type === 'update' ? 'bg-blue-100 text-blue-700' :
@@ -116,14 +112,27 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
                 </span>
               </div>
             </div>
+            <button 
+              onClick={() => toggleExpand(item.id)}
+              className="p-1 hover:bg-gray-100 rounded-full"
+            >
+              {expandedId === item.id ? (
+                <ChevronUp size={16} className="text-[#737373]" />
+              ) : (
+                <ChevronDown size={16} className="text-[#737373]" />
+              )}
+            </button>
           </div>
           {expandedId === item.id && (
-            <div className="px-4 pb-4 pt-2 border-t bg-gray-50" style={{ borderColor: "#cec4c1" }}>
+            <div 
+              className="absolute left-0 right-0 top-full z-10 px-4 py-3 border-t bg-white shadow-lg rounded-b-lg"
+              style={{ borderColor: "#cec4c1" }}
+            >
               <p className="text-sm text-[#8f93a0] whitespace-pre-line">{item.content}</p>
               {item.itemType === 'task' && (
                 <Link
                   to={`/tasks/${item.id}`}
-                  className="mt-4 text-sm text-[#b48f8f] hover:underline inline-flex items-center gap-1 font-medium"
+                  className="mt-2 text-sm text-[#b48f8f] hover:underline inline-flex items-center gap-1 font-medium"
                 >
                   View Task Details
                   <ChevronRight size={14} />
@@ -133,6 +142,14 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
           )}
         </div>
       ))}
+      {news.length > 3 && (
+        <Link
+          to="/news"
+          className="block text-center text-sm text-[#b48f8f] hover:underline py-2"
+        >
+          View All Updates ({news.length - 3} more)
+        </Link>
+      )}
       </div>
     </div>
   );
