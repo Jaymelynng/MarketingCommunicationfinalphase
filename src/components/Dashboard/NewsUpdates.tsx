@@ -13,6 +13,8 @@ interface NewsUpdatesProps {
 
 export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
   const { news, loading, error } = useNewsUpdates();
+  const { tasks: overdueTasks } = useTasks({ status: 'pending', dueWithin: 0 });
+  const { tasks: upcomingTasks } = useTasks({ status: 'pending', dueWithin: 7 });
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const getStatusIcon = (category: string) => {
@@ -22,7 +24,7 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
       case 'update':
         return <Clock size={16} className="text-blue-500" />;
       default:
-        return <CheckCircle2 size={16} className="text-green-500" />;
+        return <CheckCircle size={16} className="text-green-500" />;
     }
   };
 
@@ -82,20 +84,20 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
       </div>
 
       <div className="space-y-3">
-      {timelineItems.map((item) => (
+      {news.map((item) => (
         <div
           key={item.id}
           className={`rounded-lg border transform-gpu transition-all duration-200 overflow-hidden ${
             item.priority > 1 ? 'bg-rose-50/50' : 'bg-white'
           } hover:shadow-sm will-change-transform cursor-pointer`}
           style={{ borderColor: "#cec4c1" }}
-          onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
+          onClick={() => toggleExpand(item.id)}
         >
           <div className="flex items-start gap-3 p-4">
             <div className="mt-1 flex-shrink-0">{getStatusIcon(item.type)}</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-[#8b8585] mb-1">{item.title}</h3>
-              {!expandedItem === item.id && (
+              {expandedId !== item.id && (
                 <p className="text-sm text-[#8f93a0] mb-2 line-clamp-2">{item.content}</p>
               )}
               <div className="flex items-center gap-2 text-xs flex-wrap">
@@ -113,7 +115,7 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
               </div>
             </div>
           </div>
-          {expandedItem === item.id && (
+          {expandedId === item.id && (
             <div className="px-4 pb-4 pt-2 border-t bg-gray-50" style={{ borderColor: "#cec4c1" }}>
               <p className="text-sm text-[#8f93a0] whitespace-pre-line">{item.content}</p>
               {item.itemType === 'task' && (
