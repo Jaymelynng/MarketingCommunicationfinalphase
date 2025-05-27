@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AlertCircle, Info, Clock, CheckCircle, Calendar, ChevronDown, ChevronUp, ChevronRight, Bell } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import { useNewsUpdates, useTasks } from '../../hooks/useSupabase';
 import { Link } from 'react-router-dom';
 
@@ -110,7 +110,9 @@ export function NewsUpdates({ dateRange }: NewsUpdatesProps) {
                 </span>
                 <span className="text-[#737373] flex items-center gap-1">
                   <Calendar size={12} />
-                  {format(parseISO(item.date), 'MMM d, yyyy')}
+                  {item.date && isValid(parseISO(item.date)) 
+                    ? format(parseISO(item.date), 'MMM d, yyyy')
+                    : 'No date'}
                 </span>
               </div>
             </div>
