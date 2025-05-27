@@ -3,33 +3,36 @@ import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSa
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { DayDetailsPanel } from './DayDetailsPanel';
-import { CalendarDayType, DayDetails } from '../../types/calendar';
-import { useCalendarStore } from '../../store/calendarStore';
+import { useTaskStore } from '../../store/taskStore';
+import { useEmailStore } from '../../store/emailStore';
 
 export function CalendarView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const { events } = useCalendarStore();
+  const { tasks } = useTaskStore();
+  const { emails } = useEmailStore();
 
   const handlePreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
-  const generateCalendarDays = (): CalendarDayType[] => {
+  const generateCalendarDays = () => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
     return days.map(date => {
-      const dateStr = date.toISOString().split('T')[0];
-      const dayEvents = events.filter(event => event.date.startsWith(dateStr));
+      const dateStr = format(date, 'yyyy-MM-dd');
       
+      // Count tasks and emails for this date
+      const dayTasks = {
+        email: emails.filter(e => e.scheduledDate.startsWith(dateStr)).length,
+        social: tasks.filter(t => t.channel === 'social-media' && t.dueDate.startsWith(dateStr)).length,
+        inGym: tasks.filter(t => t.channel === 'in-gym-marketing' && t.dueDate.startsWith(dateStr)).length,
+      };
+
       return {
         date,
-        tasks: {
-          email: dayEvents.filter(e => e.type === 'email').length || 0,
-          social: dayEvents.filter(e => e.type === 'social').length || 0,
-          inGym: dayEvents.filter(e => e.type === 'in-gym').length || 0
-        },
+        tasks: dayTasks,
         isToday: isSameDay(date, new Date())
       };
     });
