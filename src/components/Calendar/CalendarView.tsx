@@ -3,7 +3,7 @@ import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSa
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { DayDetailsPanel } from './DayDetailsPanel';
-import { CalendarDayType } from '../../types/calendar';
+import { CalendarDayType, DayDetails, TaskItem, ContentItem } from '../../types/calendar';
 import { useTaskStore } from '../../store/taskStore';
 import { useEmailStore } from '../../store/emailStore';
 
@@ -28,7 +28,8 @@ export function CalendarView() {
       const dayTasks = {
         email: emails.filter(e => e.scheduledDate.startsWith(dateStr)).length,
         social: taskCounts.social,
-        inGym: taskCounts.inGym
+        inGym: taskCounts.inGym,
+        content: [] // Add empty content array to match type
       };
 
       return {
@@ -36,22 +37,35 @@ export function CalendarView() {
         tasks: dayTasks,
         isToday: isSameDay(date, new Date())
       };
-    }).filter(Boolean);
+    });
   };
 
   const getDayDetails = (date: Date): DayDetails => {
     const dateStr = date.toISOString().split('T')[0];
-    const taskCounts = taskStore.getTasksByDate(dateStr);
+    const tasks = taskStore.getTasksForDateRange(dateStr, dateStr).map(task => ({
+      id: task.task_id,
+      title: task.task_title,
+      checklist: task.checklist || [],
+      due: task.due_date,
+      type: task.channel.toLowerCase() as 'email' | 'social' | 'inGym' | 'misc'
+    }));
+
     const dayEmails = emails.filter(e => e.scheduledDate.startsWith(dateStr));
+    
+    // Convert emails to ContentItem format
+    const content: ContentItem[] = dayEmails.map(email => ({
+      id: email.id,
+      title: email.title,
+      type: 'email',
+      time: email.scheduledDate,
+      link: '', // Add appropriate link if available
+      description: email.title
+    }));
 
     return {
-      tasks: {
-        email: taskCounts.email,
-        social: taskCounts.social,
-        inGym: taskCounts.inGym,
-        misc: taskCounts.misc
-      },
-      emails: dayEmails
+      tasks,
+      emails: dayEmails,
+      content
     };
   };
 

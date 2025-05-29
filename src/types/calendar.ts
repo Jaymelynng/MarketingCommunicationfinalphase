@@ -23,24 +23,21 @@ export interface CalendarDayType {
 }
 
 export interface DayDetails {
-  tasks: {
-    email: number;
-    social: number;
-    inGym: number;
-    misc: number;
-  };
+  tasks: TaskItem[];
   emails: Array<{
     id: number;
     title: string;
     scheduledDate: string;
   }>;
+  content: ContentItem[];
 }
 
 export interface TaskItem {
-  id: number;
+  id: string;
   title: string;
   checklist: string[];
   due: string;
+  type?: 'email' | 'social' | 'inGym' | 'misc';
 }
 
 export interface ContentItem {
