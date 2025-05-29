@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { LayoutDashboard, CheckSquare, Mail, Image, Settings, Printer, Inbox, Grid, PenTool as Tool, Instagram, Facebook, Database, Palette, Calculator, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useGymDetails } from '../../hooks/useSupabase';
+import { useGyms } from '../../hooks/useSupabase';
 
 const navItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -15,7 +15,7 @@ const navItems = [
 
 export function MainLayout() {
   const { isAdmin } = useAuth();
-  const { gyms, loading } = useGymDetails();
+  const { gyms, loading } = useGyms();
   const [selectedGym, setSelectedGym] = useState('');
   const [currentGym, setCurrentGym] = useState<any>(null);
 
