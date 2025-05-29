@@ -41,7 +41,7 @@ export interface Database {
           updated_at?: string
         }
       }
-      Tasks: {
+      tasks: {
         Row: {
           id: string
           content_id: string | null
@@ -231,7 +231,7 @@ export interface Database {
           time_tracking?: Json | null
         }
       }
-      NewsUpdates: {
+      news_updates: {
         Row: {
           update_id: string
           task_id: string | null
