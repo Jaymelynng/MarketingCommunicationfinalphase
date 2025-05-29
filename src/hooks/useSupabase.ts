@@ -9,7 +9,7 @@ export const useMarketingContent = (options?: {
   scheduledAfter?: Date;
   scheduledBefore?: Date;
 }) => {
-  const [content, setContent] = useState<Database['public']['Tables']['marketing_content']['Row'][]>([]);
+  const [content, setContent] = useState<Database['public']['Tables']['Tasks']['Row'][]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -18,8 +18,8 @@ export const useMarketingContent = (options?: {
       try {
         const supabase = getSupabase();
         let query = supabase
-          .from('marketing_content')
-          .select('*, marketing_tasks(*)');
+          .from('Tasks')
+          .select('*');
 
         if (options?.contentType) {
           query = query.eq('content_type', options.contentType);
@@ -164,7 +164,7 @@ export const useTasks = (options?: {
   status?: string;
   dueWithin?: number; // days
 }) => {
-  const [tasks, setTasks] = useState<Database['public']['Tables']['marketing_tasks']['Row'][]>([]);
+  const [tasks, setTasks] = useState<Database['public']['Tables']['Tasks']['Row'][]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -172,7 +172,7 @@ export const useTasks = (options?: {
     const fetchTasks = async () => {
       try {
         const supabase = getSupabase();
-        let query = supabase.from('marketing_tasks')
+        let query = supabase.from('Tasks')
           .select('*')
           .order('due_date', { ascending: true });
 
@@ -209,7 +209,7 @@ export const useTasks = (options?: {
 
 // Hook for fetching news updates
 export const useNewsUpdates = () => {
-  const [news, setNews] = useState<Database['public']['Tables']['news_updates']['Row'][]>([]);
+  const [news, setNews] = useState<Database['public']['Tables']['NewsUpdates']['Row'][]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -218,7 +218,7 @@ export const useNewsUpdates = () => {
       try {
         const supabase = getSupabase();
         const { data, error } = await supabase
-          .from('news_updates')
+          .from('NewsUpdates')
           .select('*')
           .order('published_at', { ascending: false })
           .limit(5);
