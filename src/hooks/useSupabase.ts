@@ -217,7 +217,6 @@ export const useNewsUpdates = () => {
     const fetchNews = async () => {
       try {
         const supabase = getSupabase();
-        const { data, error } = await supabase
         const { data, error } = await supabase.from('news_updates')
           .select('*')
           .order('published_at', { ascending: false })
