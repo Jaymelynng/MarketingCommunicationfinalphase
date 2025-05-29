@@ -1,15 +1,14 @@
-export type TaskChannel = 'social-media' | 'email-marketing' | 'in-gym-marketing' | 'misc';
+export type TaskChannel = 'Social' | 'Email' | 'In-Gym';
 
 export interface TaskCounts {
   email: number;
   social: number;
   inGym: number;
-  misc: number;
 }
 
 export interface Task {
-  id: number;
-  title: string;
+  task_id: string;
+  task_title: string;
   templateId?: number;
   recurrence?: {
     frequency: 'daily' | 'weekly' | 'monthly';
@@ -21,13 +20,13 @@ export interface Task {
     actual: number;
   };
   description: string;
-  dueDate: string;
-  goLiveDate?: string; // Added go live date
-  status: 'pending' | 'in-progress' | 'completed';
+  due_date: string;
+  go_live_date?: string;
+  status: 'Scheduled' | 'FYI' | 'Heads-Up' | 'Attention Required' | 'Reminder' | 'Completed';
   priority: 'low' | 'medium' | 'high';
   channel: TaskChannel;
   checklistItems: ChecklistItem[];
-  assignedGyms?: string[];
+  gym_id?: string;
   contentId?: string;
 }
 

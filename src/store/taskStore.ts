@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { Task, TaskChannel, TaskCounts } from '../types/tasks';
 import { format } from 'date-fns';
 
-interface TaskStore {
+export interface TaskStore {
   tasks: Task[];
   addTask: (task: Omit<Task, 'id'>) => void;
   deleteTask: (taskId: number) => void;
@@ -17,14 +17,14 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   addTask: (newTask) => set((state) => ({
     tasks: [...state.tasks, { 
       ...newTask, 
-      id: Math.max(...state.tasks.map(t => t.id), 0) + 1,
+      task_id: crypto.randomUUID(),
       status: 'pending',
       createdAt: new Date().toISOString()
     }]
   })),
   
-  deleteTask: (taskId) => set((state) => ({
-    tasks: state.tasks.filter(task => task.id !== taskId)
+  deleteTask: (task_id) => set((state) => ({
+    tasks: state.tasks.filter(task => task.task_id !== task_id)
   })),
   
   updateTaskStatus: (taskId, gymName, completed) =>
@@ -56,17 +56,16 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     const formattedDate = format(new Date(date), 'yyyy-MM-dd');
     
     return {
-      email: tasks.filter(t => t.channel === 'email-marketing' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length,
-      social: tasks.filter(t => t.channel === 'social-media' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length,
-      inGym: tasks.filter(t => t.channel === 'in-gym-marketing' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length,
-      misc: tasks.filter(t => t.channel === 'misc' && format(new Date(t.dueDate), 'yyyy-MM-dd') === formattedDate).length
+      email: tasks.filter(t => t.channel === 'Email' && format(new Date(t.due_date), 'yyyy-MM-dd') === formattedDate).length,
+      social: tasks.filter(t => t.channel === 'Social' && format(new Date(t.due_date), 'yyyy-MM-dd') === formattedDate).length,
+      inGym: tasks.filter(t => t.channel === 'In-Gym' && format(new Date(t.due_date), 'yyyy-MM-dd') === formattedDate).length
     };
   },
   
   getTasksForDateRange: (startDate, endDate) => {
     const tasks = get().tasks;
     return tasks.filter(task => {
-      const taskDate = new Date(task.dueDate);
+      const taskDate = new Date(task.due_date);
       return taskDate >= startDate && taskDate <= endDate;
     });
   }

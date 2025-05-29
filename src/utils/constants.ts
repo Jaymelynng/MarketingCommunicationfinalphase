@@ -24,15 +24,13 @@ export const EMAIL_STATUS = {
 } as const;
 
 export const TASK_CHANNELS = {
-  SOCIAL_MEDIA: 'social-media',
-  EMAIL_MARKETING: 'email-marketing',
-  IN_GYM_MARKETING: 'in-gym-marketing',
-  MISC: 'misc'
+  SOCIAL_MEDIA: 'Social',
+  EMAIL_MARKETING: 'Email',
+  IN_GYM_MARKETING: 'In-Gym'
 } as const;
 
 export const TASK_CHANNEL_LABELS = {
-  'social-media': 'Social Media',
-  'email-marketing': 'Email Marketing',
-  'in-gym-marketing': 'In-Gym Marketing',
-  'misc': 'Miscellaneous'
+  'Social': 'Social Media',
+  'Email': 'Email Marketing',
+  'In-Gym': 'In-Gym Marketing'
 } as const;
