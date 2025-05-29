@@ -41,7 +41,7 @@ export interface Database {
           updated_at?: string
         }
       }
-      marketing_tasks: {
+      Tasks: {
         Row: {
           id: string
           content_id: string | null
@@ -229,6 +229,23 @@ export interface Database {
           recurrence?: Json | null
           dependencies?: Json | null
           time_tracking?: Json | null
+        }
+      }
+      NewsUpdates: {
+        Row: {
+          update_id: string
+          task_id: string | null
+          status: string
+        }
+        Insert: {
+          update_id?: string
+          task_id?: string | null
+          status?: string
+        }
+        Update: {
+          update_id?: string
+          task_id?: string | null
+          status?: string
         }
       }
     }
