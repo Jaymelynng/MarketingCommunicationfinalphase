@@ -54,36 +54,6 @@ export const useMarketingContent = (options?: {
   return { content, loading, error };
 };
 
-// Hook for fetching gym details
-export const useGymDetails = () => {
-  const [gyms, setGyms] = useState<Database['public']['Tables']['gym_details']['Row'][]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    const fetchGyms = async () => {
-      try {
-        const supabase = getSupabase();
-        const { data, error } = await supabase
-          .from('gym_details')
-          .select('*')
-          .order('gym_name');
-
-        if (error) throw error;
-        setGyms(data);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch gyms'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGyms();
-  }, []);
-
-  return { gyms, loading, error };
-};
-
 // Hook for fetching gyms
 export const useGyms = () => {
   const [gyms, setGyms] = useState<Database['public']['Tables']['gyms']['Row'][]>([]);
@@ -97,7 +67,7 @@ export const useGyms = () => {
         const { data, error } = await supabase
           .from('gyms')
           .select('*')
-          .order('name');
+          .order('gym_name');
 
         if (error) throw error;
         setGyms(data);
@@ -219,7 +189,7 @@ export const useNewsUpdates = () => {
         const supabase = getSupabase();
         const { data, error } = await supabase.from('news_updates')
           .select('*')
-          .order('published_at', { ascending: false })
+          .order('date_posted', { ascending: false })
           .limit(5);
 
         if (error) throw error;
