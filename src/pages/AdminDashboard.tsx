@@ -1,12 +1,12 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useMarketingContent, useGymDetails } from '../hooks/useSupabase';
+import { useMarketingContent, useGyms } from '../hooks/useSupabase';
 import { AlertTriangle, Clock, CheckCircle, Bell, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function AdminDashboard() {
   const { isAdmin } = useAuth();
   const { content, loading: contentLoading } = useMarketingContent();
-  const { gyms, loading: gymsLoading } = useGymDetails();
+  const { gyms, loading: gymsLoading } = useGyms();
 
   if (!isAdmin()) {
     return <Navigate to="/" replace />;
